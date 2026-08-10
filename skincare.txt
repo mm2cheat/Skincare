@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch Skincare 1 Tuần Interactive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+        .custom-checkbox:checked + div {
+            background-color: #10b981;
+            border-color: #10b981;
+        }
+        .custom-checkbox:checked + div .check-icon {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-teal-600 via-emerald-600 to-teal-700 text-white shadow-md">
+        <div class="max-w-4xl mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold flex items-center gap-2">
+                        <i class="fa-solid font-sparkles text-amber-300"></i> Lịch Skincare 1 Tuần
+                    </h1>
+                    <p class="text-teal-100 text-sm mt-1">Theo dõi & hoàn thành chu trình chăm sóc da mỗi ngày</p>
+                </div>
+                <div class="bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl text-right border border-white/20 hidden sm:block">
+                    <span class="text-xs text-teal-100 block">Tiến độ hôm nay</span>
+                    <span id="header-progress-text" class="text-lg font-bold text-white">0%</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 mt-6">
+
+        <!-- Gemini Assistant Banner Notification -->
+        <div id="gemini-alert" class="hidden mb-6 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl shadow-sm transition-all duration-300">
+            <div class="flex items-start gap-3">
+                <div class="p-2 bg-amber-100 rounded-lg text-amber-700">
+                    <i class="fa-solid font-robot text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <h4 class="font-bold text-amber-900 text-sm flex items-center gap-2">
+                        Nhắc nhở từ Gemini
+                    </h4>
+                    <p id="gemini-alert-text" class="text-sm text-amber-800 mt-0.5">
+                        Bạn chưa hoàn thành các bước skincare cho thời điểm này!
+                    </p>
+                </div>
+                <button onclick="closeAlert()" class="text-amber-500 hover:text-amber-700 p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Days Selector Tabs -->
+        <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-none mb-6">
+            <button onclick="switchDay('T2')" id="tab-T2" class="day-tab px-4 py-3 rounded-xl bg-white border border-slate-200 shadow-sm font-medium text-sm flex-1 min-w-[100px] text-center hover:border-teal-500 transition-all">
+                <span class="block text-xs text-slate-400">Thứ 2</span>
+                <span class="font-bold text-slate-700">Bình thường</span>
+            </button>
+            <button onclick="switchDay('T3')" id="tab-T3" class="day-tab px-4 py-3 rounded-xl bg-white border border-slate-200 shadow-sm font-medium text-sm flex-1 min-w-[100px] text-center hover:border-teal-500 transition-all">
+                <span class="block text-xs text-slate-400">Thứ 3</span>
+                <span class="font-bold text-slate-700">Bình thường</span>
+            </button>
+            <button onclick="switchDay('T4')" id="tab-T4" class="day-tab px-4 py-3 rounded-xl bg-white border border-slate-200 shadow-sm font-medium text-sm flex-1 min-w-[100px] text-center hover:border-teal-500 transition-all">
+                <span class="block text-xs text-purple-400">Thứ 4</span>
+                <span class="font-bold text-purple-600">Treatment</span>
+            </button>
+            <button onclick="switchDay('T5')" id="tab-T5" class="day-tab px-4 py-3 rounded-xl bg-white border border-slate-200 shadow-sm font-medium text-sm flex-1 min-w-[100px] text-center hover:border-teal-500 transition-all">
+                <span class="block text-xs text-slate-400">Thứ 5</span>
+                <span class="font-bold text-slate-700">Bình thường</span>
+            </button>
+            <button onclick="switchDay('T6')" id="tab-T6" class="day-tab px-4 py-3 rounded-xl bg-white border border-slate-200 shadow-sm font-medium text-sm flex-1 min-w-[100px] text-center hover:border-teal-500 transition-all">
+                <span class="block text-xs text-slate-400">Thứ 6</span>
+                <span class="font-bold text-slate-700">Bình thường</span>
+            </button>
+            <button onclick="switchDay('T7')" id="tab-T7" class="day-tab px-4 py-3 rounded-xl bg-white border border-slate-200 shadow-sm font-medium text-sm flex-1 min-w-[100px] text-center hover:border-teal-500 transition-all">
+                <span class="block text-xs text-purple-400">Thứ 7</span>
+                <span class="font-bold text-purple-600">Treatment</span>
+            </button>
+            <button onclick="switchDay('CN')" id="tab-CN" class="day-tab px-4 py-3 rounded-xl bg-white border border-slate-200 shadow-sm font-medium text-sm flex-1 min-w-[100px] text-center hover:border-teal-500 transition-all">
+                <span class="block text-xs text-amber-500">Chủ Nhật</span>
+                <span class="font-bold text-amber-600">Nghỉ Rest</span>
+            </button>
+        </div>
+
+        <!-- Routine Card -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+            
+            <!-- Card Header -->
+            <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-wrap justify-between items-center gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 id="current-day-title" class="text-xl font-bold text-slate-800">Thứ 2</h2>
+                        <span id="current-day-badge" class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-teal-100 text-teal-800">
+                            Bình thường
+                        </span>
+                    </div>
+                    <p id="current-day-desc" class="text-xs text-slate-500 mt-1">Cấp ẩm, dưỡng sáng & chống lão hóa nhẹ nhàng.</p>
+                </div>
+
+                <!-- Session Switcher (Sáng / Tối) -->
+                <div class="flex bg-slate-200/80 p-1 rounded-xl gap-1">
+                    <button onclick="switchSession('morning')" id="btn-morning" class="px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all bg-white text-slate-800 shadow-sm">
+                        <i class="fa-solid fa-sun text-amber-500"></i> Buổi Sáng
+                    </button>
+                    <button onclick="switchSession('night')" id="btn-night" class="px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-600 hover:text-slate-900">
+                        <i class="fa-solid fa-moon text-indigo-500"></i> Buổi Tối
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress bar -->
+            <div class="w-full bg-slate-100 h-2 relative">
+                <div id="progress-bar" class="bg-teal-500 h-2 transition-all duration-300 w-0"></div>
+            </div>
+
+            <!-- Checklist Container -->
+            <div id="steps-container" class="p-6 space-y-3">
+                <!-- Step items will be injected here via JavaScript -->
+            </div>
+
+            <!-- Card Footer -->
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                <span id="completion-status">Đã hoàn thành 0/0 bước</span>
+                <button onclick="resetCurrentSession()" class="text-slate-400 hover:text-rose-500 transition-colors flex items-center gap-1">
+                    <i class="fa-solid fa-rotate-left"></i> Làm lại buổi này
+                </button>
+            </div>
+        </div>
+
+        <!-- Note Section -->
+        <div class="mt-6 bg-blue-50/50 border border-blue-100 rounded-2xl p-5">
+            <h3 class="text-sm font-bold text-blue-900 flex items-center gap-2 mb-2">
+                <i class="fa-solid fa-circle-info text-blue-600"></i> Ghi chú quan trọng cho chu trình của bạn
+            </h3>
+            <ul class="text-xs text-blue-800/90 space-y-1.5 list-disc list-inside">
+                <li>Vào đêm <strong>Treatment (T4, T7)</strong>: Đợi da khô sau bước Toner rồi mới dùng BHA. Chờ 10-15 phút trước khi thoa Megaduo & Kem dưỡng.</li>
+                <li>Vào ngày <strong>NGHỈ (Chủ Nhật)</strong>: Tối giản mọi bước active để củng cố màng bảo vệ da tự nhiên.</li>
+                <li>Đừng quên dặm lại chống nắng Lerskin trong ngày khi đi ra ngoài nhiều.</li>
+            </ul>
+        </div>
+    </main>
+
+    <script>
+        // Routine Data Model based on user products
+        const routines = {
+            'T2': { type: 'normal', title: 'Thứ Hai', badge: 'Bình Thường', color: 'teal', desc: 'Dưỡng sáng & chống lão hóa nhẹ nhàng' },
+            'T3': { type: 'normal', title: 'Thứ Ba', badge: 'Bình Thường', color: 'teal', desc: 'Dưỡng sáng & chống lão hóa nhẹ nhàng' },
+            'T4': { type: 'treatment', title: 'Thứ Tư', badge: 'Treatment', color: 'purple', desc: 'Tẩy tế bào chết BHA 2% & Gom nhân mụn với Megaduo' },
+            'T5': { type: 'normal', title: 'Thứ Năm', badge: 'Bình Thường', color: 'teal', desc: 'Dưỡng sáng & chống lão hóa nhẹ nhàng' },
+            'T6': { type: 'normal', title: 'Thứ Sáu', badge: 'Bình Thường', color: 'teal', desc: 'Dưỡng sáng & chống lão hóa nhẹ nhàng' },
+            'T7': { type: 'treatment', title: 'Thứ Bảy', badge: 'Treatment', color: 'purple', desc: 'Tẩy tế bào chết BHA 2% & Gom nhân mụn với Megaduo' },
+            'CN': { type: 'rest', title: 'Chủ Nhật', badge: 'Nghỉ Rest Day', color: 'amber', desc: 'Phục hồi hàng rào bảo vệ da tự nhiên' },
+        };
+
+        const stepsData = {
+            'normal': {
+                morning: [
+                    { id: 'n_m_1', text: 'Sữa rửa mặt Cerave Foaming', note: 'Làm sạch dịu nhẹ buổi sáng' },
+                    { id: 'n_m_2', text: 'Toner Sơn Đoòng', note: 'Cân bằng độ ẩm cho da' },
+                    { id: 'n_m_3', text: 'Serum Niacinamide 5%', note: 'Kiềm dầu, thu nhỏ lỗ chân lông & làm đều màu da' },
+                    { id: 'n_m_4', text: 'Kem dưỡng AHC Pro shot gluta-ctivation bright 3', note: 'Khóa ẩm & làm sáng' },
+                    { id: 'n_m_5', text: 'Kem chống nắng AHC / Xịt Lerskin', note: 'Bảo vệ da tuyệt đối trước tia UV' }
+                ],
+                night: [
+                    { id: 'n_n_1', text: 'Nước tẩy trang JM Solution', note: 'Làm sạch bụi bẩn và kem chống nắng' },
+                    { id: 'n_n_2', text: 'Sữa rửa mặt Cerave Foaming', note: 'Rửa sạch hoàn toàn tạp chất' },
+                    { id: 'n_n_3', text: 'Toner Sơn Đoòng', note: 'Cấp ẩm tức thì' },
+                    { id: 'n_n_4', text: 'Serum AHC Pro shot colla-juvenation lift 4', note: 'Dưỡng ẩm sâu & ngăn ngừa lão hóa' },
+                    { id: 'n_n_5', text: 'Serum AHC Pro shot gluta-ctivation bright 3', note: 'Thoa sau bước serum trước 2-3 phút' },
+                    { id: 'n_n_6', text: 'Kem dưỡng AHC Pro shot gluta-ctivation bright 3', note: 'Khóa chặt các dưỡng chất' }
+                ]
+            },
+            'treatment': {
+                morning: [
+                    { id: 't_m_1', text: 'Sữa rửa mặt Cerave Foaming', note: 'Làm sạch dịu nhẹ' },
+                    { id: 't_m_2', text: 'Toner Sơn Đoòng', note: 'Cân bằng độ pH' },
+                    { id: 't_m_3', text: 'Serum Niacinamide 5%', note: 'Làm dịu da chuẩn bị cho active đêm' },
+                    { id: 't_m_4', text: 'Kem dưỡng AHC Pro shot gluta-ctivation bright 3', note: 'Cấp ẩm nhẹ' },
+                    { id: 't_m_5', text: 'Kem chống nắng AHC', note: 'Bắt buộc dùng chống nắng kỹ' }
+                ],
+                night: [
+                    { id: 't_n_1', text: 'Nước tẩy trang JM Solution', note: 'Tẩy sạch bụi bẩn' },
+                    { id: 't_n_2', text: 'Sữa rửa mặt Cerave Foaming', note: 'Làm sạch sâu' },
+                    { id: 't_n_3', text: 'Toner Sơn Đoòng', note: 'Đợi da khô tự nhiên trong 3-5 phút' },
+                    { id: 't_n_4', text: 'BHA 2% + Zinc 1%', note: 'Thoa toàn mặt hoặc vùng dầu, đợi 10-15 phút' },
+                    { id: 't_n_5', text: 'Gel bôi mụn Megaduo', note: 'Thoa mỏng lên vùng mụn / thâm' },
+                    { id: 't_n_6', text: 'Kem dưỡng AHC Pro shot gluta-ctivation bright 3', note: 'Khóa ẩm kỹ để phục hồi' }
+                ]
+            },
+            'rest': {
+                morning: [
+                    { id: 'r_m_1', text: 'Sữa rửa mặt Cerave Foaming (hoặc nước mát)', note: 'Tối giản làm sạch' },
+                    { id: 'r_m_2', text: 'Toner Sơn Đoòng', note: 'Cấp ẩm nhẹ nhàng' },
+                    { id: 'r_m_3', text: 'Kem chống nắng AHC / Xịt Lerskin', note: 'Bảo vệ da nhẹ nhàng' }
+                ],
+                night: [
+                    { id: 'r_n_1', text: 'Nước tẩy trang JM Solution', note: 'Tẩy trang nhẹ nhàng' },
+                    { id: 'r_n_2', text: 'Sữa rửa mặt Cerave Foaming', note: 'Rửa sạch da' },
+                    { id: 'r_n_3', text: 'Toner Sơn Đoòng', note: 'Vỗ nhẹ cấp ẩm' },
+                    { id: 'r_n_4', text: 'Kem dưỡng AHC Pro shot gluta-ctivation bright 3', note: 'Phục hồi màng ẩm' }
+                ]
+            }
+        };
+
+        // State Management
+        let currentDay = 'T2';
+        let currentSession = 'morning';
+        let userProgress = JSON.parse(localStorage.getItem('skincare_progress_v1')) || {};
+
+        // App Initialization
+        window.onload = function() {
+            renderDayTabs();
+            loadRoutine();
+        };
+
+        function switchDay(day) {
+            // Check if current session steps are finished before moving
+            checkIncompleteAndWarn(() => {
+                currentDay = day;
+                renderDayTabs();
+                loadRoutine();
+            });
+        }
+
+        function switchSession(session) {
+            if (currentSession === session) return;
+            checkIncompleteAndWarn(() => {
+                currentSession = session;
+                updateSessionButtons();
+                loadRoutine();
+            });
+        }
+
+        function checkIncompleteAndWarn(callback) {
+            const routineType = routines[currentDay].type;
+            const steps = stepsData[routineType][currentSession];
+            const currentDayProgress = userProgress[currentDay] || {};
+            
+            const totalSteps = steps.length;
+            let completedSteps = 0;
+            
+            steps.forEach(step => {
+                if (currentDayProgress[step.id]) completedSteps++;
+            });
+
+            if (completedSteps > 0 && completedSteps < totalSteps) {
+                showAlert(`Chú ý từ Gemini: Bạn chưa hoàn thành xong tất cả các bước Skincare (${completedSteps}/${totalSteps}) cho ${currentSession === 'morning' ? 'buổi Sáng' : 'buổi Tối'}!`);
+            } else {
+                closeAlert();
+            }
+            
+            callback();
+        }
+
+        function renderDayTabs() {
+            Object.keys(routines).forEach(dayKey => {
+                const tabBtn = document.getElementById(`tab-${dayKey}`);
+                if (dayKey === currentDay) {
+                    tabBtn.className = "day-tab px-4 py-3 rounded-xl bg-teal-600 text-white shadow-md font-medium text-sm flex-1 min-w-[100px] text-center border-2 border-teal-600 transition-all";
+                    tabBtn.querySelectorAll('span').forEach(s => s.classList.remove('text-slate-400', 'text-purple-400', 'text-purple-600', 'text-amber-500', 'text-amber-600', 'text-slate-700'));
+                    tabBtn.querySelectorAll('span')[0].classList.add('text-teal-100');
+                    tabBtn.querySelectorAll('span')[1].classList.add('text-white');
+                } else {
+                    const info = routines[dayKey];
+                    let textAttr = info.type === 'treatment' ? 'text-purple-600' : (info.type === 'rest' ? 'text-amber-600' : 'text-slate-700');
+                    let subTextAttr = info.type === 'treatment' ? 'text-purple-400' : (info.type === 'rest' ? 'text-amber-500' : 'text-slate-400');
+                    
+                    tabBtn.className = "day-tab px-4 py-3 rounded-xl bg-white border border-slate-200 shadow-sm font-medium text-sm flex-1 min-w-[100px] text-center hover:border-teal-400 transition-all";
+                    tabBtn.querySelectorAll('span')[0].className = `block text-xs ${subTextAttr}`;
+                    tabBtn.querySelectorAll('span')[1].className = `font-bold ${textAttr}`;
+                }
+            });
+        }
+
+        function updateSessionButtons() {
+            const btnMorning = document.getElementById('btn-morning');
+            const btnNight = document.getElementById('btn-night');
+
+            if (currentSession === 'morning') {
+                btnMorning.className = "px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all bg-white text-slate-800 shadow-sm";
+                btnNight.className = "px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-600 hover:text-slate-900";
+            } else {
+                btnNight.className = "px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all bg-white text-slate-800 shadow-sm";
+                btnMorning.className = "px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-600 hover:text-slate-900";
+            }
+        }
+
+        function loadRoutine() {
+            const dayInfo = routines[currentDay];
+            document.getElementById('current-day-title').innerText = dayInfo.title;
+            document.getElementById('current-day-desc').innerText = dayInfo.desc;
+            
+            const badgeEl = document.getElementById('current-day-badge');
+            badgeEl.innerText = dayInfo.badge;
+            
+            if (dayInfo.type === 'treatment') {
+                badgeEl.className = "px-2.5 py-0.5 text-xs font-semibold rounded-full bg-purple-100 text-purple-800";
+            } else if (dayInfo.type === 'rest') {
+                badgeEl.className = "px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-800";
+            } else {
+                badgeEl.className = "px-2.5 py-0.5 text-xs font-semibold rounded-full bg-teal-100 text-teal-800";
+            }
+
+            // Load Steps
+            const steps = stepsData[dayInfo.type][currentSession];
+            const container = document.getElementById('steps-container');
+            container.innerHTML = '';
+
+            const dayProgress = userProgress[currentDay] || {};
+
+            steps.forEach((step, index) => {
+                const isChecked = !!dayProgress[step.id];
+                
+                const stepEl = document.createElement('label');
+                stepEl.className = `flex items-center gap-4 p-3.5 rounded-xl border transition-all cursor-pointer ${isChecked ? 'bg-emerald-50/60 border-emerald-200' : 'bg-white border-slate-200 hover:border-slate-300'}`;
+                
+                stepEl.innerHTML = `
+                    <div class="relative flex items-center justify-center">
+                        <input type="checkbox" class="custom-checkbox sr-only" ${isChecked ? 'checked' : ''} onchange="toggleStep('${step.id}')">
+                        <div class="w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center transition-all">
+                            <i class="fa-solid fa-check text-white text-xs opacity-0 check-icon"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-slate-400">#${index + 1}</span>
+                            <span class="text-sm font-semibold ${isChecked ? 'line-through text-slate-400' : 'text-slate-800'}">${step.text}</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">${step.note}</p>
+                    </div>
+                `;
+                container.appendChild(stepEl);
+            });
+
+            updateProgressBar();
+        }
+
+        function toggleStep(stepId) {
+            if (!userProgress[currentDay]) {
+                userProgress[currentDay] = {};
+            }
+
+            userProgress[currentDay][stepId] = !userProgress[currentDay][stepId];
+            localStorage.setItem('skincare_progress_v1', JSON.stringify(userProgress));
+
+            loadRoutine();
+        }
+
+        function updateProgressBar() {
+            const dayInfo = routines[currentDay];
+            const steps = stepsData[dayInfo.type][currentSession];
+            const dayProgress = userProgress[currentDay] || {};
+
+            let completed = 0;
+            steps.forEach(step => {
+                if (dayProgress[step.id]) completed++;
+            });
+
+            const percent = Math.round((completed / steps.length) * 100);
+            
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+            document.getElementById('completion-status').innerText = `Đã hoàn thành ${completed}/${steps.length} bước (${percent}%)`;
+            document.getElementById('header-progress-text').innerText = `${percent}%`;
+
+            if (completed === steps.length && steps.length > 0) {
+                closeAlert();
+            }
+        }
+
+        function resetCurrentSession() {
+            const dayInfo = routines[currentDay];
+            const steps = stepsData[dayInfo.type][currentSession];
+            
+            if (!userProgress[currentDay]) return;
+
+            steps.forEach(step => {
+                delete userProgress[currentDay][step.id];
+            });
+
+            localStorage.setItem('skincare_progress_v1', JSON.stringify(userProgress));
+            loadRoutine();
+            closeAlert();
+        }
+
+        function showAlert(msg) {
+            document.getElementById('gemini-alert-text').innerText = msg;
+            document.getElementById('gemini-alert').classList.remove('hidden');
+        }
+
+        function closeAlert() {
+            document.getElementById('gemini-alert').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
+
